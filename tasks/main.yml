@@ -45,18 +45,18 @@
 - name: Start Kubernetes Master
   shell: kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem
 
-- name: Configure Master as a client - Step1
+- name: Configure Master as a client-Step1
   file:
       name: $HOME/.kube
       state: directory
 
-- name: Configure Master as a client - Step2
+- name: Configure Master as a client-Step2
   copy:
       src: /etc/kubernetes/admin.conf
       dest: $HOME/.kube/config
       remote_src: yes
 
-- name: Configure Master as a client - Step3
+- name: Configure Master as a client-Step3
   shell: chown $(id -u):$(id -g) $HOME/.kube/config
 
 - name: Apply flannel
