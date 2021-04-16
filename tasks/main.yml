@@ -9,11 +9,11 @@
     enabled: yes
 
 - name: Install kubeadm,kubelet,kubectl,iproute-tc and Docker
-  package: 
-         name: "{{ item }}" 
-         state: latest
+  package:
+         name: "{{ item }}"
+         state: present
   loop: "{{ packages }}"
-        
+
 - name: start the Docker and kubelet service
   service:
           name: "{{ item }}"
@@ -21,9 +21,9 @@
           state: started
   loop: "{{ services }}"
 
-- name: Copy Docker configuration files 
-  copy:                                 
-            src: daemon.json              
+- name: Copy Docker configuration files
+  copy:
+            src: daemon.json
             dest: /etc/docker/daemon.json
 
 - name: restart docker service
@@ -45,11 +45,11 @@
 - name: Start Kubernetes Master
   shell: kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem
 
-- name: Configure Master as a client - Step1
+- name: Configure Master as a client-Step1
   shell: mkdir -p $HOME/.kube
-- name: Configure Master as a client - Step2
+- name: Configure Master as a client-Step2
   shell: cp -i /etc/kubernetes/admin.conf  $HOME/.kube/config
-- name: Configure Master as a client - Step3
+- name: Configure Master as a client-Step3
   shell: chown $(id -u):$(id -g) $HOME/.kube/config
 
 - name: Apply flannel
