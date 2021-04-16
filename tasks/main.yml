@@ -1,0 +1,64 @@
+---
+- name: Configure Kubernetes repository
+  yum_repository:
+    name: kubernetes
+    description: offical kubernetes repo
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
+    gpgcheck: yes
+    gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    enabled: yes
+
+- name: Install kubeadm,kubelet,kubectl,iproute-tc and Docker
+  package: 
+         name: "{{ item }}" 
+         state: latest
+  loop: "{{ packages }}"
+        
+- name: start the Docker and kubelet service
+  service:
+          name: "{{ item }}"
+          enabled: yes
+          state: started
+  loop: "{{ services }}"
+
+- name: Copy Docker configuration files 
+  copy:                                 
+            src: daemon.json              
+            dest: /etc/docker/daemon.json
+
+- name: restart docker service
+  service:
+          name: docker
+          state: restarted
+
+- name: Copy configurations for bridged traffic
+  copy:
+        src: k8s.conf
+        dest: /etc/sysctl.d/k8s.conf
+
+- name: Restart sysctl --system
+  shell: sysctl --system
+
+- name: Fetch configuration images
+  shell: kubeadm config images pull
+
+- name: Start Kubernetes Master
+  shell: kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem
+
+- name: Configure Master as a client - Step1
+  shell: mkdir -p $HOME/.kube
+- name: Configure Master as a client - Step2
+  shell: cp -i /etc/kubernetes/admin.conf  $HOME/.kube/config
+- name: Configure Master as a client - Step3
+  shell: chown $(id -u):$(id -g) $HOME/.kube/config
+
+- name: Apply flannel
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+- name: Genrate Token for Slave
+  shell: kubeadm token create --print-join-command
+  register: token
+
+- name: Copy token to join cluster
+  debug:
+          var: token.stdout_lines
