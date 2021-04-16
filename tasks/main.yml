@@ -23,8 +23,8 @@
 
 - name: Copy Docker configuration files 
   copy:                                 
-            src: daemon.json            
-            dest: /etc/docker/daemon.json
+       src: "daemon.json"            
+       dest: "/etc/docker/daemon.json"
 
 - name: restart docker service
   service:
@@ -33,39 +33,39 @@
 
 - name: Copy configurations for bridged traffic
   copy:
-        src: k8s.conf
-        dest: /etc/sysctl.d/k8s.conf
+        src: "k8s.conf"
+        dest: "/etc/sysctl.d/k8s.conf"
 
 - name: Restart sysctl --system
-  shell: sysctl --system
+  shell: "sysctl --system"
 
 - name: Fetch configuration images
-  shell: kubeadm config images pull
+  shell: "kubeadm config images pull"
 
 - name: Start Kubernetes Master
-  shell: kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem
+  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem"
 
 - name: Configure Master as a client-Step1
   file:
-      name: $HOME/.kube
-      state: directory
+       name: "$HOME/.kube"
+       state: directory
 
 - name: Configure Master as a client-Step2
   copy:
-      src: /etc/kubernetes/admin.conf
-      dest: $HOME/.kube/config
+      src: "/etc/kubernetes/admin.conf"
+      dest: "$HOME/.kube/config"
       remote_src: yes
 
 - name: Configure Master as a client-Step3
-  shell: chown $(id -u):$(id -g) $HOME/.kube/config
+  shell: "chown $(id -u):$(id -g) $HOME/.kube/config"
 
 - name: Apply flannel
-  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+  shell: "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
 
 - name: Genrate Token for Slave
-  shell: kubeadm token create --print-join-command
+  shell: "kubeadm token create --print-join-command"
   register: token
 
 - name: Copy token to join cluster
   debug:
-          var: token.stdout_lines
+        var: token.stdout_lines
