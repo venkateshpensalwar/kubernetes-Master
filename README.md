@@ -14,7 +14,7 @@ Role Variables
 A description for role variables.
 
 | Variables  |  Files     | Comments
-|------------|------------|------------------|
+|------------|------------|--------------------|
 |`packages` | vars/main.yml | No need to change|
 |`services` | vars/main.yml | No need to change|
 
