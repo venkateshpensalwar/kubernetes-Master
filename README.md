@@ -29,7 +29,7 @@ Example Playbook
 
  an example of how to use this.
 
-    - hosts: localhost
+    - hosts: "server name"
       roles:
          - "your role name"
 
@@ -40,6 +40,7 @@ BSD
 
 Author Information
 ------------------
+venkateshpensalwar@gmail.com
 
 <a href="https://www.linkedin.com/in/venkatesh-pensalwar"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"
 /></a>
